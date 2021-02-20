@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+require = require('esm')(module /*, options*/);
+require('../src/cli').cli(process.argv);
+
+/*
+const meow = require('meow');
+
+meow(`
+	Usage
+	  $ sys2
+
+	Options
+		--test  Your name
+
+	Examples
+	  $ sys --name=Jane
+	  Hello, Jane
+`);
+*/

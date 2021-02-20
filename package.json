@@ -1,0 +1,40 @@
+{
+  "name": "sys-bright",
+  "description": "Ubuntu custom system settings controls",
+  "version": "0.0.2",
+  "author": {
+    "name": "Justin",
+    "email": "justin.blair.rankin@gmail.com",
+    "url": "http://finografic.github.com/cv-justin-rankin"
+  },
+  "main": "src/index.js",
+  "bin": {
+    "bright": "bin/run"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint --fix src/**/*.js"
+  },
+  "dependencies": {
+    "arg": "^5.0.0",
+    "chalk": "^4.1.0",
+    "esm": "^3.2.25",
+    "meow": "^9.0.0",
+    "sudo-prompt": "^9.2.1",
+    "update-notifier": "^5.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.19.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "prettier": "^2.2.1"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ]
+}
