@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-const log = console.log;
+
+export const log = console.log;
 
 export const logInferredBrightnessLow = () => {
   log(chalk.red('Input value too low.'));
@@ -27,6 +28,10 @@ export const logInferredBacklightHigh = () => {
 
 export const logInferredDefaults = () => {
   log(chalk.cyan(`${chalk.bold('DEFAULT')} settings will be used.`));
+};
+
+export const logInvalidInput = () => {
+  log(chalk.red('Invalid input value.'));
 };
 
 export const logSummary = ({ backlight, brightness }) => {

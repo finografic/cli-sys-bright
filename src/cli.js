@@ -3,11 +3,13 @@ import sudo from 'sudo-prompt';
 import updateNotifier from 'update-notifier';
 import { brightness, backlight, sysFileBrightness } from './config';
 import {
+  log,
   logInferredBrightnessLow,
   logInferredBrightnessHigh,
   logInferredBacklightLow,
   logInferredBacklightHigh,
   logInferredDefaults,
+  logInvalidInput,
   logSummary
 } from './logging';
 
@@ -17,46 +19,36 @@ updateNotifier({ pkg }).notify();
 
 // MAIN CLI FLOW ========================== //
 
-export async function cli(args) {
-  args = process.argv.slice(2);
-
-  console.log(args);
-  // console.log(argv);
+export async function cli() {
+  const arg = process.argv[2]; // ONLY ACCEPT *SINGLE* ARGUMENT. USE FIRST ARG, IGNORE REST.
 
   // SET BACKLIGHT -> BRIGHTNESS FACTOR
   const backlightRange = backlight.max - backlight.min;
   const backlightMidRange = backlightRange / 2 + backlight.min;
-  const brightnessRange = brightness.max - brightness.min;
-  const brightnessMidRange = brightnessRange + brightness.min;
 
-  const calcBacklightToBrighness = () => {
+  const calcBacklightToBrighness = (backlightValue) => {
     const backlightToBrightnessFactor = 0.5 / backlightMidRange;
     let brightnessValue;
-    brightnessValue = backlightToBrightnessFactor * (Number(args.value) + backlight.min);
+    brightnessValue = backlightToBrightnessFactor * (backlightValue + backlight.min);
     brightnessValue = brightnessValue < brightness.min ? brightness.min : brightnessValue;
     return Number(brightnessValue.toFixed(2));
   };
 
-  const calcBrightnessToBacklight = () => {
+  const calcBrightnessToBacklight = (brightnessValue) => {
     let backlightValue;
-    backlightValue = Number(args.value) * backlightRange - backlight.min;
-    backlightValue = Math.floor(backlightValue * Number(args.value));
+    backlightValue = brightnessValue * backlightRange - backlight.min;
+    backlightValue = Math.floor(backlightValue * brightnessValue);
     backlightValue = backlightValue < backlight.min ? backlight.min : backlightValue;
     return backlightValue;
   };
 
-  const getParsedInput = (input) => {
+  /**
+   * Uses numeric value to infer 'brightness' or 'backlight'.
+   * Return calculed values 'brightness' or 'backlight', based on inference.
+   * @param {number} input - User input, already determined to be numeric.
+   */
+  const getNumericValues = (input) => {
     switch (true) {
-      // BRIGHTNESS + BACKLIGHT SET KEYS
-      case input === 'low':
-      case input === 'high':
-      case input === 'min':
-      case input === 'max':
-        return {
-          brightness: brightness[input],
-          backlight: backlight[input],
-        };
-      // BRIGHTNESS INFERENCES !!
       case input < brightness.min:
         logInferredBrightnessLow();
         return {
@@ -66,14 +58,14 @@ export async function cli(args) {
         };
       case input >= brightness.min && input < brightness.default:
         return {
-          brightness: Number(input),
-          backlight: calcBrightnessToBacklight(),
+          brightness: input,
+          backlight: calcBrightnessToBacklight(input),
           inferredSetting: 'brightness',
         };
 
       case input >= brightness.default && input <= brightness.max:
         return {
-          brightness: Number(input),
+          brightness: input,
           backlight: backlight.max,
           inferredSetting: 'brightness',
         };
@@ -95,19 +87,17 @@ export async function cli(args) {
         };
       case input >= backlight.min && input <= backlight.max:
         return {
-          brightness: calcBacklightToBrighness(),
-          backlight: Number(input),
+          brightness: calcBacklightToBrighness(input),
+          backlight: input,
           inferredSetting: 'backlight',
         };
       case input > backlight.max:
-        console.log(chalk.magenta('CLAUSE 8'));
         logInferredBacklightHigh();
         return {
           brightness: brightness.default,
           backlight: backlight.max,
           inferredSetting: 'backlight',
         };
-      // case input === undefined: // NOT NEEDED!
       default:
         logInferredDefaults();
         return {
@@ -118,10 +108,38 @@ export async function cli(args) {
     }
   };
 
-  const parsedInput = getParsedInput(args[0]);
+  /**
+   * Determine if user input is a predefined default, numeric, or other.
+   * @param {string} input - User input always enters as string.
+   */
+  const getParsedInput = (input) => {
+    if ([
+      'min',
+      'max',
+      'low',
+      'high', 
+    ].includes(input)) {
+      return {
+        brightness: brightness[input],
+        backlight: backlight[input],
+      };
+    } else if (!isNaN(Number(input))) {
+      return getNumericValues(Number(input));
+    } else {
+      if (input !== undefined && input !== 'default') logInvalidInput();
+      logInferredDefaults();
+      return {
+        brightness: brightness.default,
+        backlight: backlight.default,
+        inferredSetting: 'backlight',
+      };
+    }
+  };
+
+  const parsedInput = getParsedInput(arg);
   brightness.setting = parsedInput.brightness;
   backlight.setting = parsedInput.backlight;
-  console.log(chalk.bold.grey('PARSED INPUT:'), parsedInput);
+  log(chalk.bold.grey('PARSED INPUT:'), parsedInput);
 
   // ============================================================== //
   // EXECUTE CHANGES VIA BASH
@@ -134,34 +152,10 @@ export async function cli(args) {
     if (error) throw new Error(error);
     const { spawn } = require('child_process');
     // EXECUTE: SET BRIGHTNESS
-    /*
     spawn(cmdBrightness, {
       stdio: 'inherit',
       shell: true,
     });
-    */
-    // logSummary({backlight, brightness});
+    logSummary({ backlight, brightness });
   });
-
-  // *** END *** ======================================= //
 }
-
-/*
-(async () => {
-  if (NODE_ENV === 'development') {
-    const startServer = require('./server').startServer;
-    await startServer();
-  }
-  let id = await cliAskBuildNumber();
-  // let id = 3820;
-  try {
-    let AUTOS = await getAutosMainObject(id);
-    await handleFailedJobs(AUTOS);
-  } catch (err) {
-    console.log('err');
-    process.exit(1);
-  }
-  nl();
-  process.exit(0);
-})();
-*/
