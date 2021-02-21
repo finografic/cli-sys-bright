@@ -1,13 +1,13 @@
 {
-  "name": "sys-bright",
+  "name": "@finografic/sys-bright",
   "description": "Ubuntu custom system settings controls: brightness + backlight",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "author": {
     "name": "Justin",
     "email": "justin.blair.rankin@gmail.com",
     "url": "http://finografic.github.com/cv-justin-rankin"
   },
-  "main": "src/cli.js",
+  "main": "src/bright.js",
   "bin": {
     "bright": "bin/run"
   },
@@ -17,7 +17,6 @@
     "lint:fix": "eslint --fix src/**/*.js"
   },
   "dependencies": {
-    "arg": "^5.0.0",
     "chalk": "^4.1.0",
     "esm": "^3.2.25",
     "meow": "^9.0.0",

@@ -19,8 +19,8 @@ updateNotifier({ pkg }).notify();
 
 // MAIN CLI FLOW ========================== //
 
-export async function cli() {
-  const arg = process.argv[2]; // ONLY ACCEPT *SINGLE* ARGUMENT. USE FIRST ARG, IGNORE REST.
+export async function bright(argv) {
+  const arg = argv[2]; // ONLY ACCEPT *SINGLE* ARGUMENT. USE FIRST ARG, IGNORE REST.
 
   // SET BACKLIGHT -> BRIGHTNESS FACTOR
   const backlightRange = backlight.max - backlight.min;
