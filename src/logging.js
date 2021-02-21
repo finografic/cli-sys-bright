@@ -2,6 +2,16 @@ import chalk from 'chalk';
 
 export const log = console.log;
 
+export const logValueTooLow = (target) => {
+  log(chalk.red(`Input value for ${chalk.bold(target)} too low.`));
+  log(chalk.cyan(`${chalk.bold('MIN')} setting will be used.`));
+};
+
+export const logValueTooHigh = (target) => {
+  log(chalk.red(`Input value for ${chalk.bold(target)} too hight.`));
+  log(chalk.cyan(`${chalk.bold('MAX')} setting will be used.`));
+};
+
 export const logInferredBrightnessLow = () => {
   log(chalk.red('Input value too low.'));
   log(chalk.cyan.bold('Brightness input inferred.'));

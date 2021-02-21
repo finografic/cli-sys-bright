@@ -3,9 +3,7 @@ module.exports = {
     es2020: true,
     node: true,
   },
-  extends: [
-    'eslint:recommended',
-  ],
+  extends: ['eslint:recommended'],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
@@ -60,7 +58,7 @@ module.exports = {
     'max-len': [
       'warn',
       {
-        'code': 110,
+        'code': 120,
         'tabWidth': 2,
         'ignoreTrailingComments': true,
         'ignoreUrls': true,

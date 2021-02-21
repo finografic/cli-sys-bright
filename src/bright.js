@@ -2,8 +2,11 @@ import chalk from 'chalk';
 import sudo from 'sudo-prompt';
 import updateNotifier from 'update-notifier';
 import { brightness, backlight, sysFileBrightness, cli, flags } from './config';
+import { getNumericValues } from './utils';
 import {
   log,
+  logValueTooLow,
+  logValueTooHigh,
   logInferredBrightnessLow,
   logInferredBrightnessHigh,
   logInferredBacklightLow,
@@ -20,103 +23,114 @@ updateNotifier({ pkg }).notify();
 // MAIN CLI FLOW ========================== //
 
 export async function bright(argv) {
-  console.log('CLI ARGV:', argv);
-
   // const arg = argv[2]; // ONLY ACCEPT *SINGLE* ARGUMENT. USE FIRST ARG, IGNORE REST.
   const inputArg = cli.input[0]; // ONLY ACCEPT *SINGLE* ARGUMENT. USE FIRST ARG, IGNORE REST.
   const inputFlags = Object.keys(cli.flags).length ? cli.flags : null;
 
-  // SET BACKLIGHT -> BRIGHTNESS FACTOR
-  const backlightRange = backlight.max - backlight.min;
-  const backlightMidRange = backlightRange / 2 + backlight.min;
-
-  const calcBacklightToBrighness = (backlightValue) => {
-    const backlightToBrightnessFactor = 0.5 / backlightMidRange;
-    let brightnessValue;
-    brightnessValue = backlightToBrightnessFactor * (backlightValue + backlight.min);
-    brightnessValue = brightnessValue < brightness.min ? brightness.min : brightnessValue;
-    return Number(brightnessValue.toFixed(2));
-  };
-
-  const calcBrightnessToBacklight = (brightnessValue) => {
-    let backlightValue;
-    backlightValue = brightnessValue * backlightRange - backlight.min;
-    backlightValue = Math.floor(backlightValue * brightnessValue);
-    backlightValue = backlightValue < backlight.min ? backlight.min : backlightValue;
-    return backlightValue;
-  };
-
-  /**
-   * Uses numeric value to infer 'brightness' or 'backlight'.
-   * Return calculed values 'brightness' or 'backlight', based on inference.
-   * @param {number} input - User input, already determined to be numeric.
-   */
-  const getNumericValues = (input) => {
+  const getFlagValue = (flagKey, flagValue, flagTarget) => {
     switch (true) {
-      case input < brightness.min:
-        logInferredBrightnessLow();
+      case isNaN(flagValue) && Object.keys(flagTarget).includes(flagValue):
         return {
-          brightness: brightness.min,
-          backlight: backlight.min,
-          inferredSetting: 'brightness',
+          [flagKey]: flagTarget[flagValue],
         };
-      case input >= brightness.min && input < brightness.default:
-        return {
-          brightness: input,
-          backlight: calcBrightnessToBacklight(input),
-          inferredSetting: 'brightness',
-        };
-
-      case input >= brightness.default && input <= brightness.max:
-        return {
-          brightness: input,
-          backlight: backlight.max,
-          inferredSetting: 'brightness',
-        };
-
-      case input > brightness.max && input <= brightness.trigger:
-        logInferredBrightnessHigh();
-        return {
-          brightness: brightness.max,
-          backlight: backlight.max,
-          inferredSetting: 'brightness',
-        };
-      // INPUT: BACKLIGHT
-      case input < backlight.min:
-        logInferredBacklightLow();
-        return {
-          brightness: brightness.min,
-          backlight: backlight.min,
-          inferredSetting: 'backlight',
-        };
-      case input >= backlight.min && input <= backlight.max:
-        return {
-          brightness: calcBacklightToBrighness(input),
-          backlight: input,
-          inferredSetting: 'backlight',
-        };
-      case input > backlight.max:
-        logInferredBacklightHigh();
-        return {
-          brightness: brightness.default,
-          backlight: backlight.max,
-          inferredSetting: 'backlight',
-        };
-      default:
+      case isNaN(flagValue) && !Object.keys(flagTarget).includes(flagValue):
+        log(chalk.red(`Flag value ${chalk.bold(flagValue)} is invalid`));
         logInferredDefaults();
         return {
-          brightness: brightness.default,
-          backlight: backlight.default,
-          inferredSetting: 'backlight',
+          [flagKey]: flagTarget.default,
+        };
+      case flagValue < flagTarget.min:
+        logValueTooLow(flagKey);
+        return {
+          [flagKey]: flagTarget.min,
+        };
+      case flagValue > flagTarget.max:
+        logValueTooHigh(flagKey);
+        return {
+          [flagKey]: flagTarget.max,
+        };
+      default:
+        return {
+          [flagKey]: flagValue,
         };
     }
   };
 
   /**
    * Determine if user input is a predefined default, numeric, or other.
-   * @param {string} input - User input always enters as string.
+   * @param {string} [input] - User input always enters as type string.
+   * @param {object} [inputFlags] - User supplied flags.
+   */
+  const getParsedFlags = (inputFlags) => {
+    // HANDLE inputFlags ===================================================== //
+
+    const validFlags = Object.keys(flags);
+    const inputFlagsValid = {};
+
+    if (inputFlags) {
+      for (const flag of Object.keys(inputFlags)) {
+        log('FLAG >>> ', flag);
+        let flagValue = inputFlags[flag];
+        log('FLAG VALUE >>> ', flagValue);
+        const isValidFlag = validFlags.includes(flag);
+        log('FLAG VALID >>> ', isValidFlag);
+        if (isValidFlag) {
+          if (flag === 'brightness') flagValue = getFlagValue(flag, flagValue, brightness);
+          if (flag === 'backlight') flagValue = getFlagValue(flag, flagValue, backlight);
+
+          log('FLAG VALUE PARSED >>> ', flagValue);
+          /*
+          if (flag === 'brightness') {
+            if (isNaN(flagValue)) flagValue = brightness[flagValue] || brightness.default;
+          }*/
+
+          /*
+          if (isNaN(flagValue)) {
+            if (flag === 'brightness') flagValue = brightness[flagValue];
+            if (flag === 'backlight') flagValue = backlight[flagValue];
+          } else {
+            if (flag === 'brightness')
+              flagValue = flagValue < brightness.min || flagValue > brightness.max ? brightness.default : flagValue;
+            if (flag === 'backlight')
+              flagValue = flagValue < backlight.min || flagValue > backlight.max ? backlight.default : flagValue;
+          }
+          */
+          inputFlagsValid[flag] = Number(flagValue);
+        } else {
+          log(chalk.red(`Flag ${chalk.bold(flag)} is invalid`));
+        }
+      }
+    }
+
+    return {
+      brightness: inputFlagsValid.brightness || brightness.default,
+      backlight: inputFlagsValid.backlight || backlight.default,
+    };
+
+    /*
+    if (input && inputFlags) {
+      log(chalk.red.bold('Too many arguments! First arg will be used; flags will be ignored.'));
+    } else if ((!input || input !== undefined) && Object.entries(inputFlagsValid).length) {
+      // return inputFlagsValid;
+
+      const brightnessFlagValue = inputFlagsValid.brightness || brightness.default;
+
+      return {
+        brightness: inputFlagsValid.brightness || brightness.default,
+        backlight: inputFlagsValid.backlight || backlight.default,
+      };
+    }
+    */
+  };
+
+  /**
+   * Determine if user input is a predefined default, numeric, or other.
+   * @param {string} [input] - User input always enters as type string.
+   * @param {object} [inputFlags] - User supplied flags.
    */
   const getParsedInput = (input) => {
+    // HANDLE input ===================================================== //
+
     if ([
       'min',
       'max',
@@ -140,10 +154,23 @@ export async function bright(argv) {
     }
   };
 
-  const parsedInput = getParsedInput(inputArg);
-  brightness.setting = parsedInput.brightness;
-  backlight.setting = parsedInput.backlight;
-  log(chalk.bold.grey('PARSED INPUT:'), parsedInput);
+  // ============================================================== //
+
+  let parsedValues;
+  if (inputArg && inputFlags) {
+    log(chalk.red.bold('Too many arguments! First arg will be used; flags will be ignored.'));
+    parsedValues = getParsedInput(inputArg);
+  } else if (inputFlags) {
+    console.log('FLAGS PRESENT !! ', inputFlags);
+    parsedValues = getParsedFlags(inputFlags);
+  } else {
+    parsedValues = getParsedInput(inputArg);
+  }
+
+  // const parsedInput = getParsedInput(inputArg, inputFlags);
+  // brightness.setting = parsedValues.brightness;
+  // backlight.setting = parsedValues.backlight;
+  log(chalk.bold.grey('PARSED INPUT:'), parsedValues);
 
   // ============================================================== //
   // EXECUTE CHANGES VIA BASH
@@ -151,12 +178,9 @@ export async function bright(argv) {
   const cmdBacklight = `echo ${backlight.setting} | tee ${sysFileBrightness}`;
   const cmdBrightness = `xrandr --output eDP-1-1 --brightness ${brightness.setting}`;
 
-  if (inputFlags) {
-    console.log('CLI FLAGS 2:', Object.keys(flags));
-    console.log('cli.flags 2:', cli.flags);
-  }
-
+  logSummary({ backlight, brightness });
   // EXECUTE !! SET BACKLIGHT
+  /*
   sudo.exec(cmdBacklight, (error, stdout) => {
     if (error) throw new Error(error);
     const { spawn } = require('child_process');
@@ -167,4 +191,5 @@ export async function bright(argv) {
     });
     logSummary({ backlight, brightness });
   });
+  */
 }
