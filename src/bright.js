@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import sudo from 'sudo-prompt';
 import updateNotifier from 'update-notifier';
-import { brightness, backlight, sysFileBrightness } from './config';
+import { brightness, backlight, sysFileBrightness, cli, flags } from './config';
 import {
   log,
   logInferredBrightnessLow,
@@ -20,7 +20,11 @@ updateNotifier({ pkg }).notify();
 // MAIN CLI FLOW ========================== //
 
 export async function bright(argv) {
-  const arg = argv[2]; // ONLY ACCEPT *SINGLE* ARGUMENT. USE FIRST ARG, IGNORE REST.
+  console.log('CLI ARGV:', argv);
+
+  // const arg = argv[2]; // ONLY ACCEPT *SINGLE* ARGUMENT. USE FIRST ARG, IGNORE REST.
+  const inputArg = cli.input[0]; // ONLY ACCEPT *SINGLE* ARGUMENT. USE FIRST ARG, IGNORE REST.
+  const inputFlags = Object.keys(cli.flags).length ? cli.flags : null;
 
   // SET BACKLIGHT -> BRIGHTNESS FACTOR
   const backlightRange = backlight.max - backlight.min;
@@ -136,7 +140,7 @@ export async function bright(argv) {
     }
   };
 
-  const parsedInput = getParsedInput(arg);
+  const parsedInput = getParsedInput(inputArg);
   brightness.setting = parsedInput.brightness;
   backlight.setting = parsedInput.backlight;
   log(chalk.bold.grey('PARSED INPUT:'), parsedInput);
@@ -146,6 +150,11 @@ export async function bright(argv) {
 
   const cmdBacklight = `echo ${backlight.setting} | tee ${sysFileBrightness}`;
   const cmdBrightness = `xrandr --output eDP-1-1 --brightness ${brightness.setting}`;
+
+  if (inputFlags) {
+    console.log('CLI FLAGS 2:', Object.keys(flags));
+    console.log('cli.flags 2:', cli.flags);
+  }
 
   // EXECUTE !! SET BACKLIGHT
   sudo.exec(cmdBacklight, (error, stdout) => {

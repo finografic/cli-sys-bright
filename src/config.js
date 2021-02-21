@@ -56,4 +56,14 @@ ${docsTitle('EXAMPLES:')}
   ${docsGrey('{ brightness: 0.61, backlight: 3000, inferredSetting: "backlight" }')}
 
 `;
-meow(helpDocs);
+
+export const flags = {
+  brightness: {
+    type: 'number',
+  },
+  backlight: {
+    type: 'number',
+  },
+};
+
+export const cli = meow(helpDocs, flags);
