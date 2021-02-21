@@ -22,25 +22,38 @@ export const backlight = {
 
 export const sysFileBrightness = '/sys/class/backlight/intel_backlight/brightness';
 
-meow(`
-  ${chalk.cyan.bold('USAGE:')}
-    $ bright ${chalk.cyan('{value}')}
+// CLI DOCS --help
 
-  ${chalk.cyan.bold('POSSIBLE VALUES:')}
-    ${chalk.cyan('{string}')} min | max | low | high | default
-    ${chalk.cyan('{number}')} ${brightness.min} - ${brightness.max} \t\t${chalk.grey('(infers brightness value)')}
-    ${chalk.cyan('{number}')} > ${brightness.trigger} AND <= ${backlight.max} \t${chalk.grey(
-  '(infers backlight value)'
-)}
-      
-  ${chalk.cyan.bold('EXAMPLES:')}
-    $ bright ${chalk.cyan('min')}
-    ${chalk.grey('{ brightness: 0.4, backlight: 600 }')}
-    $ bright ${chalk.cyan('max')}
-    ${chalk.grey('{ brightness: 1.3, backlight: 5273 }')}
-    $ bright ${chalk.cyan('0.8')}
-    ${chalk.grey('{ brightness: 0.8, backlight: 2510, inferredSetting: "brightness" }')}
-    $ bright ${chalk.cyan('3000')}
-    ${chalk.grey('{ brightness: 0.61, backlight: 3000, inferredSetting: "backlight" }')}
+const $ = chalk.cyan('$');
+const docsTitle = (val) => {
+  return chalk.cyan.bold(val);
+};
 
-`);
+const docsValue = (val) => {
+  return chalk.green.bold(val);
+};
+const docsGrey = (val) => {
+  return chalk.grey(val);
+};
+
+const helpDocs = `
+${docsTitle('USAGE:')}
+  ${$} bright ${docsValue('{value}')}
+
+${docsTitle('POSSIBLE VALUES:')}
+  ${chalk.cyan('{string}')} min | max | low | high | default
+  ${chalk.cyan('{number}')} ${brightness.min} - ${brightness.max} \t\t${docsGrey('(infers brightness value)')}
+  ${chalk.cyan('{number}')} > ${brightness.trigger} AND <= ${backlight.max} \t${docsGrey('(infers backlight value)')}
+    
+${docsTitle('EXAMPLES:')}
+  ${$} bright ${docsValue('min')}
+  ${docsGrey('{ brightness: 0.4, backlight: 600 }')}
+  ${$} bright ${docsValue('max')}
+  ${docsGrey('{ brightness: 1.3, backlight: 5273 }')}
+  ${$} bright ${docsValue('0.8')}
+  ${docsGrey('{ brightness: 0.8, backlight: 2510, inferredSetting: "brightness" }')}
+  ${$} bright ${docsValue('3000')}
+  ${docsGrey('{ brightness: 0.61, backlight: 3000, inferredSetting: "backlight" }')}
+
+`;
+meow(helpDocs);
