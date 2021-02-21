@@ -1,4 +1,4 @@
-# @finografic/sys-cli-bright
+# @finografic/cli-sys-bright
 
 **Ubuntu custom system settings via the CLI: display brightness + backlight**
 
