@@ -28,19 +28,19 @@ meow(`
 
   ${chalk.cyan.bold('POSSIBLE VALUES:')}
     ${chalk.cyan('{string}')} min | max | low | high | default
-    ${chalk.cyan('{number}')} ${brightness.min} - ${brightness.max} ${chalk.grey.bold('(infers brightness value)')}
-    ${chalk.cyan('{number}')} > ${brightness.trigger} AND <= ${backlight.max} ${chalk.grey.bold(
+    ${chalk.cyan('{number}')} ${brightness.min} - ${brightness.max} \t\t${chalk.grey('(infers brightness value)')}
+    ${chalk.cyan('{number}')} > ${brightness.trigger} AND <= ${backlight.max} \t${chalk.grey(
   '(infers backlight value)'
 )}
       
   ${chalk.cyan.bold('EXAMPLES:')}
-    $ bright min
-    ${chalk.grey.bold('{ brightness: 0.4, backlight: 600 }')}
-    $ bright max
-    ${chalk.grey.bold('{ brightness: 1.3, backlight: 5273 }')}
-    $ bright 0.8 
-    ${chalk.grey.bold('{ brightness: 0.8, backlight: 2510, inferredSetting: "brightness" }')}
-    $ bright 3000
-    ${chalk.grey.bold('{ brightness: 0.61, backlight: 3000, inferredSetting: "backlight" }')}
+    $ bright ${chalk.cyan('min')}
+    ${chalk.grey('{ brightness: 0.4, backlight: 600 }')}
+    $ bright ${chalk.cyan('max')}
+    ${chalk.grey('{ brightness: 1.3, backlight: 5273 }')}
+    $ bright ${chalk.cyan('0.8')}
+    ${chalk.grey('{ brightness: 0.8, backlight: 2510, inferredSetting: "brightness" }')}
+    $ bright ${chalk.cyan('3000')}
+    ${chalk.grey('{ brightness: 0.61, backlight: 3000, inferredSetting: "backlight" }')}
 
 `);

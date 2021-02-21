@@ -1,6 +1,6 @@
 {
-  "name": "@finografic/sys-bright",
-  "description": "Ubuntu custom system settings controls: brightness + backlight",
+  "name": "@finografic/sys-cli-bright",
+  "description": "Ubuntu custom system settings via the CLI: display brightness + backlight",
   "version": "0.9.0",
   "author": {
     "name": "Justin",
@@ -32,5 +32,11 @@
   "engines": {
     "node": ">=12.0.0"
   },
-  "license": "MIT"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finografic/sys-cli-bright.git"
+  },
+  "copyright": "Copyright 2021",
+  "license": "MIT",
+  "private": false
 }

@@ -2,5 +2,4 @@
 
 /* eslint-disable no-global-assign*/
 require = require('esm')(module /* , options*/);
-console.log('running...');
 module.exports = require('../src/bright').bright(process.argv);
