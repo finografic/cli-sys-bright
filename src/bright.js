@@ -6,7 +6,6 @@ import { getParsedFlags, getParsedInput } from './utilsParsing';
 import { log, logSummary } from './logging';
 
 const pkg = require('../package.json');
-
 updateNotifier({ pkg }).notify();
 
 // MAIN CLI FLOW ========================== //
