@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-
 import { brightness, backlight, flags } from './config';
 import { calcBrightnessToBacklight, calcBacklightToBrighness } from './utilsCalc';
 import {

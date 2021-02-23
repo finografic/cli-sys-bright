@@ -1,23 +1,13 @@
 import chalk from 'chalk';
-
-import { brightness, backlight, sysFileBrightness, cli, flags } from './config';
-import {
-  log,
-  logInferredBrightnessLow,
-  logInferredBrightnessHigh,
-  logInferredBacklightLow,
-  logInferredBacklightHigh,
-  logInferredDefaults,
-  logInvalidInput,
-  logValueTooLow,
-  logValueTooHigh
-} from './logging';
+import { brightness, backlight, flags } from './config';
+import { getNumericValues } from './utilsParsing';
+import { log, logInferredDefaults, logInvalidInput, logValueTooLow, logValueTooHigh } from './logging';
 
 // SET BACKLIGHT -> BRIGHTNESS FACTOR
 const backlightRange = backlight.max - backlight.min;
 const backlightMidRange = backlightRange / 2 + backlight.min;
 
-const calcBacklightToBrighness = (backlightValue) => {
+export const calcBacklightToBrighness = (backlightValue) => {
   const backlightToBrightnessFactor = 0.5 / backlightMidRange;
   let brightnessValue;
   brightnessValue = backlightToBrightnessFactor * (backlightValue + backlight.min);
@@ -25,7 +15,7 @@ const calcBacklightToBrighness = (backlightValue) => {
   return Number(brightnessValue.toFixed(2));
 };
 
-const calcBrightnessToBacklight = (brightnessValue) => {
+export const calcBrightnessToBacklight = (brightnessValue) => {
   let backlightValue;
   backlightValue = brightnessValue * backlightRange - backlight.min;
   backlightValue = Math.floor(backlightValue * brightnessValue);
