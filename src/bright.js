@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import sudo from 'sudo-prompt';
 import updateNotifier from 'update-notifier';
+
 import { brightness, backlight, sysFileBrightness, cli, flags } from './config';
 import { getParsedFlags, getParsedInput } from './utilsParsing';
 import { log, logSummary } from './logging';
