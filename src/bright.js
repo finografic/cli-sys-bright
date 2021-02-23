@@ -12,7 +12,7 @@ updateNotifier({ pkg }).notify();
 // MAIN CLI FLOW ========================== //
 
 export async function bright() {
-  const inputArg = cli.input[0]; // ONLY ACCEPT *SINGLE* ARGUMENT. USE FIRST ARG, IGNORE REST.
+  const inputArg = cli.input[0]; // ONLY ACCEPT *SINGLE* ARGUMENT. FIRST ARG, IGNORE REST.
   const inputFlags = Object.keys(cli.flags).length ? cli.flags : null;
 
   // ============================================================== //
