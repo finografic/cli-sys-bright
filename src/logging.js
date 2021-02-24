@@ -1,5 +1,7 @@
 import chalk from 'chalk';
 
+// TEST
+
 export const log = console.log;
 
 export const logValueTooLow = (key) => {
