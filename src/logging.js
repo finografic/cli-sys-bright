@@ -2,13 +2,13 @@ import chalk from 'chalk';
 
 export const log = console.log;
 
-export const logValueTooLow = (target) => {
-  log(chalk.red(`Input value for ${chalk.bold(target)} too low.`));
+export const logValueTooLow = (key) => {
+  log(chalk.red(`Input value for ${chalk.bold(key)} too low.`));
   log(chalk.cyan(`${chalk.bold('MIN')} setting will be used.`));
 };
 
-export const logValueTooHigh = (target) => {
-  log(chalk.red(`Input value for ${chalk.bold(target)} too hight.`));
+export const logValueTooHigh = (key) => {
+  log(chalk.red(`Input value for ${chalk.bold(key)} too hight.`));
   log(chalk.cyan(`${chalk.bold('MAX')} setting will be used.`));
 };
 
