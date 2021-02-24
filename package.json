@@ -15,7 +15,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint --fix src/**/*.js",
-    "lint:staged": "lint-staged"
+    "lint:staged": "lint-staged",
+    "precommit": "lint-staged"
   },
   "dependencies": {
     "arg": "^5.0.0",
